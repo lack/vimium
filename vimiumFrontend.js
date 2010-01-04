@@ -125,6 +125,14 @@ function initializePreDomReady() {
       port.onMessage.addListener(function (args) {
         refreshCompletionKeys(args.completionKeys);
       });
+    } else if (port.name == "HUD") {
+      port.onMessage.addListener(function(args) {
+        if (args.timeout && args.timeout > 0) {
+          HUD.showForDuration(args.message, args.timeout);
+        } else {
+          HUD.show(args.message);
+        }
+      });
     }
   });
 }
