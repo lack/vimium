@@ -314,14 +314,19 @@
   }
 
   function handleKeyDown(key, port) {
+    var hudport = chrome.tabs.connect(port.tab.id, { name: "HUD" });
     if (key == "<ESC>") {
       console.log("clearing keyQueue");
       keyQueue = ""
+      hudport.postMessage({ message: "ESC", timeout: 10 });
     }
     else {
       console.log("checking keyQueue: [", keyQueue + key, "]");
       keyQueue = checkKeyQueue(keyQueue + key, port.tab.id);
       console.log("new KeyQueue: " + keyQueue);
+      if (keyQueue != "") {
+        hudport.postMessage({ message: keyQueue });
+      }
     }
   }
 
@@ -337,6 +342,8 @@
     if (keyToCommandRegistry[command]) {
       registryEntry = keyToCommandRegistry[command];
       console.log("command found for [", keysToCheck, "],", registryEntry);
+      var hudport = chrome.tabs.connect(tabId, { name: "HUD" });
+      hudport.postMessage({ message: keysToCheck, timeout: 10 });
 
       if (typeof(registryEntry) == "string") {
         var port = chrome.tabs.connect(tabId, { name: "executePageCommand" });
